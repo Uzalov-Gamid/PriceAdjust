@@ -1,30 +1,42 @@
 import os
+import json
+import re
 from tkinter import Tk, Label, Entry, Button, Text, Scrollbar, END, Frame
 from tkinter.ttk import Notebook, Panedwindow
 from telethon import TelegramClient
 import asyncio
-import json
-import re
 import openpyxl
-import shutil
 
-API_ID = '27212520'
-API_HASH = '03087dbebf65aa4c3b8dac7636159abd'
-PHONE_NUMBER = '+79332117050'  # Ваш номер телефона, для авторизации
+# Загрузка конфигурации
 
-DATA_FOLDER = 'DATA'
-LINKS_FILE = os.path.join(DATA_FOLDER, 'links.json')
-ALLOWED_PHRASES_FILE = os.path.join(DATA_FOLDER, 'allowed_phrases.json')
+
+def load_config():
+    with open("config.json", "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+config = load_config()
+
+API_ID = config["API_ID"]
+API_HASH = config["API_HASH"]
+PHONE_NUMBER = config["PHONE_NUMBER"]
+DATA_FOLDER = config["DATA_FOLDER"]
+LINKS_FILE = config["LINKS_FILE"]
+ALLOWED_PHRASES_FILE = config["ALLOWED_PHRASES_FILE"]
 
 message_links = {}
 
 if not os.path.exists(DATA_FOLDER):
     os.makedirs(DATA_FOLDER)
 
+# Сохранение ссылок
+
 
 def save_links():
     with open(LINKS_FILE, 'w', encoding='utf-8') as f:
         json.dump(message_links, f, ensure_ascii=False, indent=4)
+
+# Загрузка ссылок
 
 
 def load_links():
@@ -35,6 +47,8 @@ def load_links():
     except FileNotFoundError:
         message_links = {}
 
+# Разбор ссылки
+
 
 def parse_link(link):
     match = re.match(r"https://t\.me/(\w+)/(\d+)", link)
@@ -42,6 +56,8 @@ def parse_link(link):
         return match.groups()
     else:
         raise ValueError("Некорректная ссылка")
+
+# Асинхронная загрузка сообщений
 
 
 async def fetch_messages(output_text):
@@ -72,6 +88,8 @@ async def fetch_messages(output_text):
         except Exception as e:
             output_text.insert(END, f"Ошибка: {str(e)}")
 
+# Добавление ссылки
+
 
 def add_link():
     name = name_entry.get()
@@ -83,6 +101,8 @@ def add_link():
         channel_entry.delete(0, END)
         show_links()
 
+# Отображение ссылок
+
 
 def show_links():
     list_text.delete(1.0, END)
@@ -91,6 +111,8 @@ def show_links():
             list_text.insert(END, f"{index}. {name}: {link}\n")
     else:
         list_text.insert(END, "Список ссылок пуст.\n")
+
+# Удаление ссылки
 
 
 def delete_link():
@@ -107,11 +129,15 @@ def delete_link():
     except ValueError:
         list_text.insert(END, "\nОшибка: Введите корректный номер.\n")
 
+# Обновление сообщений
+
 
 def get_messages():
     output_text.delete(1.0, END)
     output_text.insert(END, 'Загрузка...\n')
     asyncio.run(fetch_messages(output_text))
+
+# Сохранение допустимых фраз
 
 
 def save_allowed_phrases():
@@ -125,6 +151,8 @@ def save_allowed_phrases():
     else:
         output_text.insert(END, "\nОшибка: Список фраз пуст.\n")
 
+# Загрузка допустимых фраз
+
 
 def load_allowed_phrases():
     try:
@@ -133,6 +161,8 @@ def load_allowed_phrases():
         return phrases_list
     except (FileNotFoundError, json.JSONDecodeError):
         return []
+
+# Подготовка контента
 
 
 def prepare_for_editing(content, allowed_phrases):
@@ -143,6 +173,8 @@ def prepare_for_editing(content, allowed_phrases):
             line = re.sub(r'\s*-\s*', '-', line)
             result.append(line)
     return '\n'.join(result)
+
+# Обновление контента для редактирования
 
 
 def prepare_and_update_output():
@@ -155,6 +187,8 @@ def prepare_and_update_output():
     prepared_content = prepare_for_editing(content, allowed_phrases)
     output_text.delete(1.0, END)
     output_text.insert(END, prepared_content)
+
+# Создание Excel файла с сообщениями
 
 
 def create_excel():
@@ -179,6 +213,8 @@ def create_excel():
 
     wb.save(os.path.join(DATA_FOLDER, "messages.xlsx"))
 
+# Создание Excel файла Name-Price
+
 
 def create_excel_name_price():
     wb = openpyxl.Workbook()
@@ -199,6 +235,8 @@ def create_excel_name_price():
     wb.save(os.path.join(DATA_FOLDER, "name_price.xlsx"))
     output_text.insert(END, "\nExcel файл 'name_price.xlsx' успешно создан.\n")
 
+# Сохранение в текстовый файл
+
 
 def save_to_txt():
     content = output_text.get(1.0, END).strip()
@@ -209,6 +247,8 @@ def save_to_txt():
     else:
         output_text.insert(
             END, "\nОшибка: Нет данных для сохранения в файл.\n")
+
+# Отправка файлов в Telegram
 
 
 def send_files_to_telegram():

@@ -1,0 +1,8 @@
+{
+    "API_ID": "27212520",
+    "API_HASH": "03087dbebf65aa4c3b8dac7636159abd",
+    "PHONE_NUMBER": "+79332117050",
+    "DATA_FOLDER": "DATA",
+    "LINKS_FILE": "DATA/links.json",
+    "ALLOWED_PHRASES_FILE": "DATA/allowed_phrases.json"
+}

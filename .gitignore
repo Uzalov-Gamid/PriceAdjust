@@ -1,1 +1,5 @@
 .DS_Store
+tempCodeRunnerFile.py
+*.session
+messages.txt
+name_price.xlsx
