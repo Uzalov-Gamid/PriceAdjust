@@ -1,3 +1,4 @@
+from openpyxl.styles import PatternFill
 import os
 import json
 import re
@@ -215,22 +216,47 @@ def create_excel():
 
 # Создание Excel файла Name-Price
 
-
 def create_excel_name_price():
     wb = openpyxl.Workbook()
     sheet = wb.active
-    sheet.title = "Name and Price"
-    sheet.append(["Название", "Цена закупа"])
+    sheet.title = "Name, Link, Price"
+
+    # Заголовки таблицы
+    headers = ["Название", "Ссылка", "Цена закупа",
+               "Цена продажи", "116890 ₽", "%"]
+    sheet.append(headers)
+
+    # Установка высоты строки 1 и оранжевого фона
+    sheet.row_dimensions[1].height = 50
+    orange_fill = PatternFill(start_color="FFA500",
+                              end_color="FFA500", fill_type="solid")
+
+    # Применяем фон для каждой ячейки в первой строке
+    for col in range(1, len(headers) + 1):
+        sheet.cell(row=1, column=col).fill = orange_fill
+
+    # Установка ширины колонок
+    sheet.column_dimensions['A'].width = 180 / \
+        7  # Approximate pixels to width ratio
+    sheet.column_dimensions['B'].width = 250 / 7
+    sheet.column_dimensions['C'].width = 90 / 7
+    sheet.column_dimensions['D'].width = 90 / 7
+    sheet.column_dimensions['E'].width = 70 / 7
+    sheet.column_dimensions['F'].width = 70 / 7
 
     content = output_text.get(1.0, END).strip()
     lines = content.splitlines()
 
     for line in lines:
+        # Сопоставление строки с форматом "Название - Цена закупа"
         match = re.match(r"^(.*?)\s*-\s*([\d.,]+)", line)
         if match:
             name = match.group(1).strip()
             price = match.group(2).replace('.', '').replace(',', '').strip()
-            sheet.append([name, price])
+            # Получаем ссылку из словаря, если она существует
+            link = message_links.get(name, "")
+            # Добавляем строку с данными
+            sheet.append([name, link, price, "0", "", ""])
 
     wb.save(os.path.join(DATA_FOLDER, "name_price.xlsx"))
     output_text.insert(END, "\nExcel файл 'name_price.xlsx' успешно создан.\n")
