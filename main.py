@@ -226,14 +226,15 @@ def create_excel_name_price():
     lines = content.splitlines()
 
     for line in lines:
-        match = re.match(r"^(.*?)\s*-\s*(\d+[.,]?\d*)", line)
+        match = re.match(r"^(.*?)\s*-\s*([\d.,]+)", line)
         if match:
             name = match.group(1).strip()
-            price = match.group(2).replace(",", ".").strip()
+            price = match.group(2).replace('.', '').replace(',', '').strip()
             sheet.append([name, price])
 
     wb.save(os.path.join(DATA_FOLDER, "name_price.xlsx"))
     output_text.insert(END, "\nExcel файл 'name_price.xlsx' успешно создан.\n")
+
 
 # Сохранение в текстовый файл
 
