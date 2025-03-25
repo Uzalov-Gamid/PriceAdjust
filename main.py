@@ -74,17 +74,17 @@ async def fetch_messages(output_text):
                     entity = await client.get_entity(username)
                     message = await client.get_messages(entity, ids=int(message_id))
                     if message:
-                        output_text.insert(END, f"{index}. {name} ({link}):\n{
-                                           message.text}\n\n")
+                        output_text.insert(
+                            END, f"{index}. {name}({link}): \n{message.text}\n\n")
                     else:
-                        output_text.insert(END, f"{index}. {name}: Сообщение по ссылке {
-                                           link} не найдено.\n\n")
+                        output_text.insert(
+                            END, f"{index}. {name}: Сообщение по ссылке {link} не найдено.\n\n")
                 except ValueError as ve:
-                    output_text.insert(END, f"Ошибка с ссылкой {
-                                       link}: {str(ve)}\n\n")
+                    output_text.insert(
+                        END, f"Ошибка с ссылкой {link}: {str(ve)}\n\n")
                 except Exception as e:
-                    output_text.insert(END, f"Ошибка с ссылкой {
-                                       link}: {str(e)}\n\n")
+                    output_text.insert(
+                        END, f"Ошибка с ссылкой {link}: {str(e)}\n\n")
         except Exception as e:
             output_text.insert(END, f"Ошибка: {str(e)}")
 
